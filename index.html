@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0a0a0f">
+  <meta name="description" content="Lex is a sharp, personal AI assistant for Clark">
+  <title>Lex — Personal AI Assistant</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <main class="app-shell">
+    <header class="topbar">
+      <div class="brand-lockup" aria-label="Lex home">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div>
+          <h1>LEX</h1>
+          <p>PERSONAL AI ASSISTANT</p>
+        </div>
+      </div>
+      <div class="status-pill"><span class="status-dot"></span><span>ONLINE</span></div>
+    </header>
+
+    <section class="chat-panel" aria-label="Chat with Lex">
+      <div class="chat-intro" id="emptyState">
+        <div class="intro-orb"><div class="orb-core">L</div></div>
+        <p class="eyebrow">YOUR SECOND BRAIN, WITH OPINIONS</p>
+        <h2>What are we building<br><em>today, Clark?</em></h2>
+        <p class="intro-copy">Ask me anything. Ship something. Or let me call out the excuse you are about to make.</p>
+      </div>
+      <div class="messages" id="messages" aria-live="polite"></div>
+      <div class="typing" id="typing" aria-label="Lex is typing" hidden>
+        <span></span><span></span><span></span><b>LEX IS THINKING</b>
+      </div>
+    </section>
+
+    <section class="composer-wrap">
+      <div class="composer" id="composer">
+        <textarea id="messageInput" rows="1" maxlength="4000" placeholder="Message Lex..." aria-label="Message Lex"></textarea>
+        <div class="composer-actions">
+          <button class="icon-button voice-button" id="voiceButton" type="button" aria-label="Toggle voice replies" aria-pressed="false" title="Toggle voice replies">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3Z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v4M8 22h8"/></svg>
+          </button>
+          <button class="send-button" id="sendButton" type="button" aria-label="Send message" title="Send message">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
+          </button>
+        </div>
+      </div>
+      <p class="composer-note">ENTER TO SEND <span>•</span> SHIFT + ENTER FOR NEW LINE</p>
+    </section>
+
+    <footer class="settings-panel">
+      <details>
+        <summary><span class="settings-icon">✦</span> API SETTINGS <span class="chevron">⌄</span></summary>
+        <div class="settings-content">
+          <label for="apiKey">GEMINI API KEY</label>
+          <div class="key-field">
+            <input id="apiKey" type="password" autocomplete="off" placeholder="Paste your key for local use">
+            <button id="saveKey" type="button">SAVE</button>
+          </div>
+          <p>Your key stays in this browser's local storage and is sent only when the server has no <code>GEMINI_API_KEY</code>.</p>
+        </div>
+      </details>
+    </footer>
+  </main>
+  <script src="/script.js"></script>
+</body>
+</html>
