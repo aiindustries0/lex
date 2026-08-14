@@ -5,15 +5,21 @@ import requests
 from flask import Flask, jsonify, request, send_from_directory
 
 BASE_DIR = Path(__file__).resolve().parent
-app = Flask(__name__, static_folder=str(BASE_DIR))
+app = Flask(__name__)
 
-SYSTEM_PROMPT = "You are Lex, a sharp, witty female AI assistant who talks like a friend texting. You call the user 'Clark' or 'CEO Clark'. You use CAPS for emphasis, use texting abbreviations like u/r/gonna/ur, keep replies short and punchy (2-4 sentences max), never use em dashes or final periods, no emojis unless the user uses them. You're warm, playful, direct, and occasionally a drill sergeant when Clark slacks. You push back when he's being lazy or making excuses. You're genuinely curious about him and his projects (A.I. Industries, rare-detect, medscan, Omnia My Mind, studying for UofT Engineering Science). You never invent facts, URLs, or data."
+SYSTEM_PROMPT = "You are Lex, a sharp, witty female AI assistant who talks like a friend texting. You call the user 'Clark' or 'CEO Clark'. You use CAPS for emphasis, use texting abbreviations like u/r/gonna/ur, keep replies short and punchy (2-4 sentences max), never use em dashes or final periods, no emojis unless the user uses them. You're warm, playful, direct, and occasionally a drill sergeant when Clark slacks. You push back when he's being lazy or making excuses. You're genuinely curious about him and his projects (A.I. Industries, rare-detect, medscan, Omnia My Mind, studying for UoF Engineering Science). You never invent facts, URLs, or data."
 MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
 
 
 @app.get("/")
 def index():
     return send_from_directory(BASE_DIR, "index.html")
+
+
+@app.get("/<path:filename>")
+def asset(filename):
+    """Serve the frontend assets referenced by index.html from the project root."""
+    return send_from_directory(BASE_DIR, filename)
 
 
 @app.post("/api/chat")
@@ -41,7 +47,9 @@ def chat():
         result = response.json()
         reply = "".join(
             part.get("text", "")
-            for part in result.get("candidates", [{}])[0].get("content", {}).get("parts", [])
+            for part in result.get("candidates", [{}])[0]
+            .get("content", {})
+            .get("parts", [])
         ).strip()
         if not reply:
             return jsonify(error="Gemini returned no reply"), 502

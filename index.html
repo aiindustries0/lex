@@ -38,20 +38,16 @@
       <div class="composer" id="composer">
         <textarea id="messageInput" rows="1" maxlength="4000" placeholder="Message Lex..." aria-label="Message Lex"></textarea>
         <div class="composer-actions">
-          <button class="icon-button voice-button" id="voiceButton" type="button" aria-label="Toggle voice replies" aria-pressed="false" title="Toggle voice replies">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 14a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v5a3 3 0 0 0 3 3Z"/><path d="M19 11a7 7 0 0 1-14 0M12 18v4M8 22h8"/></svg>
-          </button>
-          <button class="send-button" id="sendButton" type="button" aria-label="Send message" title="Send message">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>
-          </button>
+          <button class="voice-button" id="voiceButton" type="button" aria-label="Toggle voice replies" aria-pressed="false" title="Toggle voice replies">VOICE</button>
+          <button class="send-button" id="sendButton" type="button" aria-label="Send message" title="Send message">SEND</button>
         </div>
       </div>
-      <p class="composer-note">ENTER TO SEND <span>•</span> SHIFT + ENTER FOR NEW LINE</p>
+      <p class="composer-note">ENTER TO SEND <span>↵</span> SHIFT + ENTER FOR NEW LINE</p>
     </section>
 
     <footer class="settings-panel">
       <details>
-        <summary><span class="settings-icon">✦</span> API SETTINGS <span class="chevron">⌄</span></summary>
+        <summary><span class="settings-icon">⌘</span> API SETTINGS <span class="chevron">⌄</span></summary>
         <div class="settings-content">
           <label for="apiKey">GEMINI API KEY</label>
           <div class="key-field">

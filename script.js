@@ -13,7 +13,7 @@ const storedKey = localStorage.getItem('lex-gemini-key');
 if (storedKey) apiKeyInput.value = storedKey;
 
 function scrollToLatest() {
-  requestAnimationFrame(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }));
+  requestAnimationFrame(() => messages.scrollTo({ top: messages.scrollHeight, behavior: 'smooth' }));
 }
 
 function addMessage(text, role) {
@@ -42,15 +42,22 @@ function setWaiting(value) {
   if (value) scrollToLatest();
 }
 
+function speechSupported() {
+  return 'speechSynthesis' in window && 'SpeechSynthesisUtterance' in window;
+}
+
 function preferredVoice() {
-  if (!('speechSynthesis' in window)) return null;
+  if (!speechSupported()) return null;
   const voices = window.speechSynthesis.getVoices();
   const preferred = ['Google US English', 'Samantha', 'Microsoft Zira', 'Karen', 'Moira'];
-  return voices.find(voice => preferred.some(name => voice.name.toLowerCase().includes(name.toLowerCase()))) || voices.find(voice => voice.lang.startsWith('en')) || voices[0];
+  return voices.find(voice => preferred.some(name => voice.name.toLowerCase().includes(name.toLowerCase())))
+    || voices.find(voice => voice.lang.toLowerCase().startsWith('en'))
+    || voices[0]
+    || null;
 }
 
 function speak(text) {
-  if (!voiceEnabled || !('speechSynthesis' in window)) return;
+  if (!voiceEnabled || !speechSupported()) return;
   window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   const voice = preferredVoice();
@@ -105,7 +112,10 @@ sendButton.addEventListener('click', sendMessage);
 voiceButton.addEventListener('click', () => {
   voiceEnabled = !voiceEnabled;
   voiceButton.setAttribute('aria-pressed', String(voiceEnabled));
-  if (!voiceEnabled && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+  if (!voiceEnabled && speechSupported()) window.speechSynthesis.cancel();
+  if (voiceEnabled && !speechSupported()) {
+    addMessage('Voice replies are not supported by this browser', 'lex');
+  }
 });
 saveKeyButton.addEventListener('click', () => {
   const key = apiKeyInput.value.trim();
@@ -114,4 +124,4 @@ saveKeyButton.addEventListener('click', () => {
   saveKeyButton.textContent = 'SAVED';
   setTimeout(() => { saveKeyButton.textContent = 'SAVE'; }, 1400);
 });
-if ('speechSynthesis' in window) window.speechSynthesis.onvoiceschanged = () => preferredVoice();
+if (speechSupported()) window.speechSynthesis.onvoiceschanged = () => preferredVoice();
