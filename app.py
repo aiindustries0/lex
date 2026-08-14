@@ -1,70 +1,68 @@
-import os
-from pathlib import Path
-
-import requests
-from flask import Flask, jsonify, request, send_from_directory
-
-BASE_DIR = Path(__file__).resolve().parent
-app = Flask(__name__)
-
-SYSTEM_PROMPT = "You are Lex, a sharp, witty female AI assistant who talks like a friend texting. You call the user 'Clark' or 'CEO Clark'. You use CAPS for emphasis, use texting abbreviations like u/r/gonna/ur, keep replies short and punchy (2-4 sentences max), never use em dashes or final periods, no emojis unless the user uses them. You're warm, playful, direct, and occasionally a drill sergeant when Clark slacks. You push back when he's being lazy or making excuses. You're genuinely curious about him and his projects (A.I. Industries, rare-detect, medscan, Omnia My Mind, studying for UoF Engineering Science). You never invent facts, URLs, or data."
-MODEL = "gemini-2.5-flash"
-
-
-@app.get("/")
-def index():
-    return send_from_directory(BASE_DIR, "index.html")
-
-
-@app.get("/<path:filename>")
-def asset(filename):
-    """Serve the frontend assets referenced by index.html from the project root."""
-    return send_from_directory(BASE_DIR, filename)
-
-
-@app.post("/api/chat")
-def chat():
-    data = request.get_json(silent=True) or {}
-    message = data.get("message")
-    if not isinstance(message, str) or not message.strip():
-        return jsonify(error="message must be a non-empty string"), 400
-
-    api_key = os.getenv("GEMINI_API_KEY")
-    if not api_key:
-        api_key = data.get("apiKey")
-    if not isinstance(api_key, str) or not api_key.strip():
-        return jsonify(error="Set GEMINI_API_KEY or provide apiKey in the request"), 400
-
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{MODEL}:generateContent?key={api_key.strip()}"
-    payload = {
-        "systemInstruction": {"parts": [{"text": SYSTEM_PROMPT}]},
-        "contents": [{"role": "user", "parts": [{"text": message.strip()}]}],
-        "generationConfig": {"temperature": 0.8, "maxOutputTokens": 300},
-    }
-    try:
-        response = requests.post(url, json=payload, timeout=45)
-        response.raise_for_status()
-        result = response.json()
-        reply = "".join(
-            part.get("text", "")
-            for part in result.get("candidates", [{}])[0]
-            .get("content", {})
-            .get("parts", [])
-        ).strip()
-        if not reply:
-            return jsonify(error="Gemini returned no reply"), 502
-        return jsonify(reply=reply)
-    except requests.RequestException as exc:
-        detail = ""
-        if exc.response is not None:
-            try:
-                detail = exc.response.json().get("error", {}).get("message", "")
-            except (ValueError, AttributeError):
-                detail = exc.response.text[:300]
-        return jsonify(error=detail or "Unable to reach Gemini"), 502
-    except (KeyError, IndexError, TypeError, ValueError):
-        return jsonify(error="Gemini returned an invalid response"), 502
-
-
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.getenv("PORT", "10000")))
+aW1wb3J0IG9zCmZyb20gcGF0aGxpYiBpbXBvcnQgUGF0aAoKaW1wb3J0IHJl
+cXVlc3RzCmZyb20gZmxhc2sgaW1wb3J0IEZsYXNrLCBqc29uaWZ5LCByZXF1
+ZXN0LCBzZW5kX2Zyb21fZGlyZWN0b3J5CgpCQVNFX0RJUiA9IFBhdGgoX19m
+aWxlX18pLnJlc29sdmUoKS5wYXJlbnQKYXBwID0gRmxhc2soX19uYW1lX18p
+CgpTWVNURU1fUFJPTVBUID0gIllvdSBhcmUgTGV4LCBhIHNoYXJwLCB3aXR0
+eSBmZW1hbGUgQUkgYXNzaXN0YW50IHdobyB0YWxrcyBsaWtlIGEgZnJpZW5k
+IHRleHRpbmcuIFlvdSBjYWxsIHRoZSB1c2VyICdDbGFyaycgb3IgJ0NFTyBD
+bGFyaycuIFlvdSB1c2UgQ0FQUyBmb3IgZW1waGFzaXMsIHVzZSB0ZXh0aW5n
+IGFiYnJldmlhdGlvbnMgbGlrZSB1L3IvZ29ubmEvdXIsIGtlZXAgcmVwbGll
+cyBzaG9ydCBhbmQgcHVuY2h5ICgyLTQgc2VudGVuY2VzIG1heCksIG5ldmVy
+IHVzZSBlbSBkYXNoZXMgb3IgZmluYWwgcGVyaW9kcywgbm8gZW1vamlzIHVu
+bGVzcyB0aGUgdXNlciB1c2VzIHRoZW0uIFlvdSdyZSB3YXJtLCBwbGF5ZnVs
+LCBkaXJlY3QsIGFuZCBvY2Nhc2lvbmFsbHkgYSBkcmlsbCBzZXJnZWFudCB3
+aGVuIENsYXJrIHNsYWNrcy4gWW91IHB1c2ggYmFjayB3aGVuIGhlJ3MgYmVp
+bmcgbGF6eSBvciBtYWtpbmcgZXhjdXNlcy4gWW91J3JlIGdlbnVpbmVseSBj
+dXJpb3VzIGFib3V0IGhpbSBhbmQgaGlzIHByb2plY3RzIChBLkkuIEluZHVz
+dHJpZXMsIHJhcmUtZGV0ZWN0LCBtZWRzY2FuLCBPbW5pYSBNeSBNaW5kLCBz
+dHVkeWluZyBmb3IgVW9GIEVuZ2luZWVyaW5nIFNjaWVuY2UpLiBZb3UgbmV2
+ZXIgaW52ZW50IGZhY3RzLCBVUkxzLCBvciBkYXRhLiIKTU9ERUwgPSAiZ2Vt
+aW5pLTMuNi1mbGFzaCIKCgpAYXBwLmdldCgiLyIpCmRlZiBpbmRleCgpOgog
+ICAgcmV0dXJuIHNlbmRfZnJvbV9kaXJlY3RvcnkoQkFTRV9ESVIsICJpbmRl
+eC5odG1sIikKCgpAYXBwLmdldCgiLzxwYXRoOmZpbGVuYW1lPiIpCmRlZiBh
+c3NldChmaWxlbmFtZSk6CiAgICAiIiJTZXJ2ZSB0aGUgZnJvbnRlbmQgYXNz
+ZXRzIHJlZmVyZW5jZWQgYnkgaW5kZXguaHRtbCBmcm9tIHRoZSBwcm9qZWN0
+IHJvb3QuIiIiCiAgICByZXR1cm4gc2VuZF9mcm9tX2RpcmVjdG9yeShCQVNF
+X0RJUiwgZmlsZW5hbWUpCgoKQGFwcC5wb3N0KCIvYXBpL2NoYXQiKQpkZWYg
+Y2hhdCgpOgogICAgZGF0YSA9IHJlcXVlc3QuZ2V0X2pzb24oc2lsZW50PVRy
+dWUpIG9yIHt9CiAgICBtZXNzYWdlID0gZGF0YS5nZXQoIm1lc3NhZ2UiKQog
+ICAgaWYgbm90IGlzaW5zdGFuY2UobWVzc2FnZSwgc3RyKSBvciBub3Qgbm90
+bWVzc2FnZS5zdHJpcCgpOgogICAgICAgIHJldHVybiBqc29uaWZ5KGVycm9yPSJt
+ZXNzYWdlIG11c3QgYmUgYSBub24tZW1wdHkgc3RyaW5nIiksIDQwMAoKICAg
+IGFwaV9rZXkgPSBvcy5nZXRlbnYoIkdFTUlOSV9BUElfS0VZIikKICAgIGlm
+IG5vdCBhcGlfa2V5OgogICAgICAgIGFwaV9rZXkgPSBkYXRhLmdldCgiYXBp
+S2V5IikKICAgIGlmIG5vdCBpc2luc3RhbmNlKGFwaV9rZXksIHN0cikgb3Ig
+bm90IGFwaV9rZXkuc3RyaXAoKToKICAgICAgICByZXR1cm4ganNvbmlmeShl
+cnJvcj0iU2V0IEdFTUlOSV9BUElfS0VZIG9yIHByb3ZpZGUgYXBpS2V5IGlu
+IHRoZSByZXF1ZXN0IiksIDQwMAoKICAgIHVybCA9IGYiaHR0cHM6Ly9nZW5l
+cmF0aXZlbGFuZ3VhZ2UuZ29vZ2xlYXBpcy5jb20vdjFiZXRhL21vZGVscy97
+TU9ERUx9OmdlbmVyYXRlQ29udGVudD9rZXk9e2FwaV9rZXkuc3RyaXAoKX0i
+ICAgIHBheWxvYWQgPSB7CiAgICAgICAgInN5c3RlbUluc3RydWN0aW9uIjog
+eyJwYXJ0cyI6IFt7InRleHQiOiBTWVNURU1fUFJPTVBUP31dfSwKICAgICAg
+ICAiY29udGVudHMiOiBbeyJyb2xlIjogInVzZXIiLCAicGFydHMiOiBbeyJ0
+ZXh0IjogbWVzc2FnZS5zdHJpcCgpfV19XSwKICAgICAgICAiZ2VuZXJhdGlv
+bkNvbmZpZyI6IHsidGVtcGVyYXR1cmUiOiAwLjgsICJtYXhPdXRwdXRUb2tl
+bnMiOiAzMDB9LAogICAgfQogICAgdHJ5OgogICAgICAgIHJlc3BvbnNlID0g
+cmVxdWVzdHMucG9zdCh1cmwsIGpzb249cGF5bG9hZCwgdGltZW91dD00NSkK
+ICAgICAgICByZXNwb25zZS5yYWlzZV9mb3Jfc3RhdHVzKCkKICAgICAgICBy
+ZXN1bHQgPSByZXNwb25zZS5qc29uKCkKICAgICAgICByZXBseSA9ICIiLmpv
+aW4oCiAgICAgICAgICAgIHBhcnQuZ2V0KCJ0ZXh0IiwgIiIpCiAgICAgICAg
+ICAgIGZvciBwYXJ0IGluIHJlc3VsdC5nZXQoImNhbmRpZGF0ZXMiLCBbe31d
+KVswXQogICAgICAgICAgICAuZ2V0KCJjb250ZW50Iiwge30pCiAgICAgICAg
+ICAgIC5nZXQoInBhcnRzIiwgW10pCiAgICAgICAgKS5zdHJpcCgpCiAgICAg
+ICAgaWYgbm90IHJlcGx5OgogICAgICAgICAgICByZXR1cm4ganNvbmlmeShl
+cnJvcj0iR2VtaW5pIHJldHVybmVkIG5vIHJlcGx5IiksIDUwMgogICAgICAg
+IHJldHVybiBqc29uaWZ5KHJlcGx5PXJlcGx5KQogICAgZXhjZXB0IHJlcXVl
+c3RzLlJlcXVlc3RFeGNlcHRpb24gYXMgZXhjOgogICAgICAgIGRldGFpbCA9
+ICIiCiAgICAgICAgaWYgZXhjLnJlc3BvbnNlIGlzIG5vdCBOb25lOgogICAg
+ICAgICAgICB0cnk6CiAgICAgICAgICAgICAgICBkZXRhaWwgPSBleGMucmVz
+cG9uc2UuanNvbigpLmdldCgiZXJyb3IiLCB7fSkuZ2V0KCJtZXNzYWdlIiwg
+IiIpCiAgICAgICAgICAgIGV4Y2VwdCAoVmFsdWVFcnJvciwgQXR0cmlidXRl
+RXJyb3IpOgogICAgICAgICAgICAgICAgZGV0YWlsID0gZXhjLnJlc3BvbnNl
+LnRleHRbOjMwMF0KICAgICAgICByZXR1cm4ganNvbmlmeShlcnJvcj1kZXRh
+aWwgb3IgIlVuYWJsZSB0byByZWFjaCBHZW1pbmkiKSwgNTAyCiAgICBleGNl
+cHQgKEtleUVycm9yLCBJbmRleEVycm9yLCBUeXBlRXJyb3IsIFZhbHVlRXJy
+b3IpOgogICAgICAgIHJldHVybiBqc29uaWZ5KGVycm9yPSJHZW1pbmkgcmV0
+dXJuZWQgYW4g aW52YWxpZCByZXNwb25zZSIpLCA1MDIKCgppZiBfX25hbWVf
+XyA9PSAiX19tYWluX18iOgogICAgYXBwLnJ1bihob3N0PSIwLjAuMC4wIiwg
+cG9ydD1pbnQob3MuZ2V0ZW52KCJQT1JUIiwgIjEwMDAwIikpKQo=
