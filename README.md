@@ -33,4 +33,9 @@ The API also accepts a browser-provided `apiKey` when `GEMINI_API_KEY` is not se
 4. Keep the defaults fine: Render will install `requirements.txt` and use the included `Procfile` (`web: gunicorn app:app`).
 5. Deploy and open the generated Render URL.
 
+### Explicit Render settings
+
+- **Start Command:** `gunicorn app:app`
+- **Environment variable:** Add `GEMINI_API_KEY` in Render's Environment settings and set its value to your Gemini API key. Never commit the key to the repository.
+
 The service exposes `GET /` for the website and `POST /api/chat` for Gemini-backed replies. The frontend voice button uses the browser's speech synthesis API when available.
